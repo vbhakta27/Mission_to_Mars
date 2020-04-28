@@ -50,12 +50,13 @@ def scrape():
     # Parse HTML with Beautiful Soup
     soup = BeautifulSoup(html, 'html.parser')
     # Retrieve all elements that contain the first mars picture information
-    mars_latest_pic = soup.find('li', class_="slide")
+    mars_latest_pic = soup.find('article', class_="carousel_item")
 
-    # Dissect the anchor which contains the img link
-    anchor = mars_latest_pic.find('a')
-    image_link = anchor['data-fancybox-href']
-    featured_image_url = ('https://www.jpl.nasa.gov/' + image_link)
+    # Dissect the article which contains the img link
+    background_img = mars_latest_pic['style']
+    image_url_split = background_img.split("'",2)
+    image_link = image_url_split[1]
+    featured_image_url = ('https://www.jpl.nasa.gov' + image_link)
 
 
     ########## Mars Weather ##########
@@ -83,7 +84,7 @@ def scrape():
     mars_facts_df = mars_facts_tables[0]
 
     # Convert dataframe into html and removed new line (\n) in code
-    mars_fact_html_table = mars_facts_df.to_html()
+    mars_fact_html_table = mars_facts_df.to_html(index=False, header=False)
     mars_fact_html_table = mars_fact_html_table.replace('\n', '')
     mars_fact_html_table
 
@@ -142,13 +143,15 @@ def scrape():
         "hemisphere_image_urls": hemisphere_image_urls
     }
 
+    print(mars_data)
+
     # Close the browser after scraping
     browser.quit()
 
     # Return results
     return mars_data
 
-# Jeff Added Code:  ALWAYS TEST!!!
+# Test code
 if __name__ == "__main__":
     print("\nTesting Data Retrieval...\n")
     print(scrape())
